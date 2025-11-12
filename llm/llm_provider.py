@@ -261,7 +261,8 @@ class LLMManager:
         **kwargs
     ) -> None:
         """
-        Register a custom LLM provider
+        Register a custom LLM provider, 
+        Mainly if any client has home grown LLM solution that can be added here.
         
         Args:
             provider_name: Unique name for the provider (e.g., "my_custom_llm")
