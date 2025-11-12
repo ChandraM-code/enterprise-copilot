@@ -2,7 +2,7 @@ import hashlib
 import json
 import redis
 from typing import Optional
-from config import settings
+from config import settings, debug_print
 
 
 class ExactCache:
@@ -27,19 +27,23 @@ class ExactCache:
     def get(self, query: str) -> Optional[str]:
         """Retrieve cached response for exact query match"""
         key = self._generate_key(query)
+        debug_print(f"Layer 0: Looking up key '{key}'")
         cached_value = self.redis_client.get(key)
-        
+
         if cached_value:
             print(f"✓ Layer 0 (Exact Cache) HIT for query: {query[:50]}...")
+            debug_print(f"Layer 0: Retrieved {len(cached_value)} chars from cache")
             return cached_value
-        
+
         print(f"✗ Layer 0 (Exact Cache) MISS")
+        debug_print(f"Layer 0: No cached value found for key '{key}'")
         return None
     
     def set(self, query: str, response: str, ttl: Optional[int] = None) -> None:
         """Store response in exact cache"""
         key = self._generate_key(query)
         ttl = ttl or settings.cache_ttl
+        debug_print(f"Layer 0: Storing {len(response)} chars with TTL={ttl}s at key '{key}'")
         self.redis_client.setex(key, ttl, response)
         print(f"✓ Stored in Layer 0 (Exact Cache)")
     
@@ -50,8 +54,11 @@ class ExactCache:
     
     def clear_all(self) -> None:
         """Clear all exact cache entries"""
+        count = 0
         for key in self.redis_client.scan_iter("exact_cache:*"):
             self.redis_client.delete(key)
+            count += 1
+        debug_print(f"Layer 0: Deleted {count} cache entries")
         print("✓ Cleared all Layer 0 (Exact Cache) entries")
     
     def health_check(self) -> bool:
