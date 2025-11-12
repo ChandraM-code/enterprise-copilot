@@ -1,0 +1,154 @@
+# This Kubernetes configuration file was generated from a Docker Compose file.
+# It defines the resources to deploy Redis and Qdrant services.
+
+# --- Redis PersistentVolumeClaim ---
+# This creates a persistent volume claim for Redis data storage.
+# In a production environment, you would need a StorageClass and a PersistentVolume provisioner.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-data-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+# --- Redis Deployment ---
+# This deployment manages the Redis pods. It ensures that one replica of the Redis container is always running.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:latest
+        command:
+          - "redis-server"
+          - "--appendonly"
+          - "yes"
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: redis-storage
+          mountPath: /data
+        healthcheck:
+          test: ["CMD", "redis-cli", "ping"]
+          interval: 10s
+          timeout: 5s
+          retries: 5
+
+      volumes:
+      - name: redis-storage
+        persistentVolumeClaim:
+          claimName: redis-data-pvc
+
+---
+
+# --- Redis Service ---
+# This service exposes the Redis deployment within the Kubernetes cluster.
+# Other pods can connect to Redis using the service name "redis-cache".
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-cache
+spec:
+  selector:
+    app: redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+
+---
+
+# --- Qdrant PersistentVolumeClaim ---
+# This creates a persistent volume claim for Qdrant data storage.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: qdrant-data-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+
+# --- Qdrant Deployment ---
+# This deployment manages the Qdrant pods.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qdrant-deployment
+  labels:
+    app: qdrant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qdrant
+  template:
+    metadata:
+      labels:
+        app: qdrant
+    spec:
+      containers:
+      - name: qdrant
+        image: qdrant/qdrant:latest
+        ports:
+        - containerPort: 6333
+        - containerPort: 6334
+        volumeMounts:
+        - name: qdrant-storage
+          mountPath: /qdrant/storage
+        env:
+        - name: QDRANT__SERVICE__GRPC_PORT
+          value: "6334"
+        healthcheck:
+          test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+          interval: 10s
+          timeout: 5s
+          retries: 5
+      volumes:
+      - name: qdrant-storage
+        persistentVolumeClaim:
+          claimName: qdrant-data-pvc
+
+---
+
+# --- Qdrant Service ---
+# This service exposes the Qdrant deployment, making it accessible on its HTTP and gRPC ports.
+apiVersion: v1
+kind: Service
+metadata:
+  name: qdrant-vector-db
+spec:
+  selector:
+    app: qdrant
+  ports:
+    - name: http
+      protocol: TCP
+      port: 6333
+      targetPort: 6333
+    - name: grpc
+      protocol: TCP
+      port: 6334
+      targetPort: 6334
