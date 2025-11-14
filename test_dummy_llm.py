@@ -177,13 +177,13 @@ def test_dummy_llm_with_cache_behavior(llm_provider_name, test_query_text):
 
 if __name__ == "__main__":
     """
-    Example usage of the test functions
+    Test suite execution for dummy/custom LLM providers
     """
 
-    # Example 1: Test a single dummy LLM
-    print("\n=== EXAMPLE 1: Test Single Dummy LLM ===")
+    # Test 1: Test dummy LLM
+    print("\n=== Test 1: Test Dummy LLM ===")
     results = test_dummy_llm(
-        llm_provider_name="custom_provider",  # Replace with your dummy LLM name
+        llm_provider_name="dummy",  # Replace with your dummy LLM name
         test_queries=[
             "What is Python?",
             "Explain APIs",
@@ -191,16 +191,10 @@ if __name__ == "__main__":
         ]
     )
 
-    # Example 2: Test cache behavior
-    print("\n=== EXAMPLE 2: Test Cache Behavior ===")
+    # Test 2: Test cache behavior
+    print("\n=== Test 2: Test Cache Behavior ===")
     cache_results = test_dummy_llm_with_cache_behavior(
-        llm_provider_name="custom_provider",  # Replace with your dummy LLM name
+        llm_provider_name="dummy",  # Replace with your dummy LLM name
         test_query_text="What is artificial intelligence?"
     )
 
-    # Example 3: Compare multiple providers
-    # print("\n=== EXAMPLE 3: Compare Multiple Providers ===")
-    # comparison = test_multiple_providers(
-    #     provider_names=["custom_provider", "openai", "anthropic"],
-    #     test_queries=["What is Python?", "Explain machine learning"]
-    # )

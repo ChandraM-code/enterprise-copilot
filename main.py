@@ -56,6 +56,18 @@ app.add_middleware(
 # Initialize orchestrator
 orchestrator = None
 
+"""
+@app.on_event("startup")
+async def startup_event():
+    #Initalize the cache orchestrator on startup
+    global orchestrator
+    try:
+        orchestrator = CacheOrchestrator()
+        print("✓ Application started successfully")
+    except Exception as e:
+        print(f"✗ Failed to initialize orchestrator: {e}")
+        raise
+"""
 
 @app.on_event("startup")
 async def startup_event():
@@ -63,6 +75,26 @@ async def startup_event():
     global orchestrator
     try:
         orchestrator = CacheOrchestrator()
+        
+        # Register dummy LLM provider for testing
+        def dummy_llm(query: str, context: Optional[str] = None) -> str:
+            """Dummy LLM for testing without API tokens"""
+            query_lower = query.lower()
+            
+            if "machine learning" in query_lower:
+                return "Machine learning is a subset of AI..."
+            elif "python" in query_lower:
+                return "Python is a high-level programming language..."
+            else:
+                return f"Dummy response for: '{query}'"
+        
+        orchestrator.llm_manager.register_custom_provider(
+            provider_name="dummy",
+            custom_function=dummy_llm,
+            model_name="Dummy LLM for Testing"
+        )
+        
+        print("✓ Dummy LLM provider registered")
         print("✓ Application started successfully")
     except Exception as e:
         print(f"✗ Failed to initialize orchestrator: {e}")
