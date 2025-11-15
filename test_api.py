@@ -128,7 +128,7 @@ def test_cache_hierarchy():
 
 def test_clear_cache():
     """Test cache clearing"""
-    print_section("Testing Cache Clear")
+    print_section("Clearing Cache")
     
     # Clear Layer 0
     response = requests.delete(f"{BASE_URL}/api/cache?layer=0")

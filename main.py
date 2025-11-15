@@ -83,15 +83,35 @@ async def startup_event():
             
             if "machine learning" in query_lower:
                 return "Machine learning is a subset of AI..."
-            elif "python" in query_lower:
-                return "Python is a high-level programming language..."
+            # ---- CM: Python facts ----
+            elif "guido" in query_lower or "1991" in query_lower:
+                return "Python was created by Guido van Rossum in 1991."
+            elif "indentation" in query_lower:
+                return "Python uses indentation to define code blocks."
+            elif "lists" in query_lower or "mutable" in query_lower:
+                return "Python lists are mutable."
+            elif "yield" in query_lower or "generator" in query_lower:
+                return "Python generators use the 'yield' keyword."
+            elif "pip" in query_lower or "package manager" in query_lower:
+                return "Python’s package manager is pip."
+            # ---- CM: Country–capital facts ----
+            elif "india" in query_lower or "new delhi" in query_lower:
+                return "India’s capital is New Delhi."
+            elif "japan" in query_lower or "tokyo" in query_lower:
+                return "Japan’s capital is Tokyo."
+            elif "france" in query_lower or "paris" in query_lower:
+                return "France’s capital is Paris."
+            elif "australia" in query_lower or "canberra" in query_lower:
+                return "Australia’s capital is Canberra."
+            elif "brazil" in query_lower or "brasilia" in query_lower:
+                return "Brazil’s capital is Brasília."
             else:
                 return f"Dummy response for: '{query}'"
         
         orchestrator.llm_manager.register_custom_provider(
             provider_name="dummy",
             custom_function=dummy_llm,
-            model_name="Dummy LLM for Testing"
+            model_name="Dummy LLM for Cache Testing"
         )
         
         print("✓ Dummy LLM provider registered")

@@ -154,7 +154,8 @@ class RAGCache:
         try:
             points = []
             for i, chunk in enumerate(chunks):
-                chunk_id = f"{doc_id}_chunk_{i}" if len(chunks) > 1 else doc_id
+                #chunk_id = f"{doc_id}_chunk_{i}" if len(chunks) > 1 else doc_id
+                chunk_id = str(uuid.uuid4())
                 chunk_vector = self._embed_text(chunk)
 
                 chunk_metadata = {
@@ -222,7 +223,8 @@ class RAGCache:
             debug_print(f"Document {doc_idx+1}/{len(documents)}: ID={doc_id}, chunks={len(chunks)}")
 
             for i, chunk in enumerate(chunks):
-                chunk_id = f"{doc_id}_chunk_{i}" if len(chunks) > 1 else doc_id
+                #chunk_id = f"{doc_id}_chunk_{i}" if len(chunks) > 1 else doc_id
+                chunk_id = str(uuid.uuid4())
                 chunk_vector = self._embed_text(chunk)
 
                 chunk_metadata = {

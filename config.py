@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     
     # LLM Configuration
     default_llm: str = "openai"
+    #default_llm: str = "dummy"
     openai_model: str = "gpt-3.5-turbo"
     gemini_model: str = "gemini-pro"
     

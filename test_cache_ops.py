@@ -4,8 +4,36 @@ Uses test_query from test_api.py to test custom LLM implementations
 """
 
 import time
-from test_api import test_query, print_section
+import json
+import requests
+from test_api import test_query, print_section, test_clear_cache
 
+BASE_URL = "http://localhost:8000"
+
+def add_documents():
+    """Adding documents to RAG cache"""
+    print_section("Add Documents")
+    
+    documents = [
+        {
+            "content": "Python was created by Guido van Rossum in 1991. Python’s name was inspired by Monty Python. Python uses indentation to define code blocks. Python supports multiple programming paradigms. Python’s package manager is called pip. Python lists are mutable. Python tuples are immutable. Python dictionaries store key-value pairs. Python uses garbage collection for memory management. Python integers have arbitrary precision. Python strings are immutable. Python functions are first-class objects. Python supports lambda expressions. Python’s standard file extension is .py. Python uses dynamic typing. Python includes a built-in REPL. Python supports list comprehensions. Python exceptions propagate up the call stack. Python generators use the yield keyword. Python decorators wrap functions for modification. Python supports multiple inheritance. Python’s standard library includes datetime. Python’s collections module offers specialized data types. Python uses the Global Interpreter Lock in CPython. Python’s virtual environments isolate dependencies. Python can interface with C using Cython. Python’s asyncio supports asynchronous programming. Python booleans are subclasses of integers. Python classes can define custom magic methods. Python uses duck typing. Python’s with statement manages context. Python’s json module handles JSON data. Python supports binary literals using 0b. Python supports f-strings for interpolation. Python’s itertools module provides iterator tools. Python uses hash tables for dictionary storage. Python modules can be grouped into packages. Python’s default encoding is UTF-8. Python supports type hints using typing. Python’s os module provides OS-level functions. Python supports set comprehensions. Python integers are immutable. Python allows unpacking of iterables. Python’s math module provides mathematical functions. Python objects have reference counts. Python list slicing creates a new list. Python’s zip function aggregates iterables. Python’s sum function performs numeric addition. Python supports generator expressions. Python’s subprocess module runs external commands.",
+            "metadata": {"topic": "programming", "language": "Python"}
+        },
+        {
+            "content": "India’s capital is New Delhi. Japan’s capital is Tokyo. France’s capital is Paris. Germany’s capital is Berlin. Australia’s capital is Canberra. Canada’s capital is Ottawa. Brazil’s capital is Brasília. China’s capital is Beijing. Russia’s capital is Moscow. Italy’s capital is Rome. Spain’s capital is Madrid. South Korea’s capital is Seoul. United Kingdom’s capital is London. United States’ capital is Washington, D.C. Mexico’s capital is Mexico City. Argentina’s capital is Buenos Aires. Egypt’s capital is Cairo. South Africa’s capital is Pretoria. Kenya’s capital is Nairobi. Nigeria’s capital is Abuja. Saudi Arabia’s capital is Riyadh. Turkey’s capital is Ankara. Thailand’s capital is Bangkok. Indonesia’s capital is Jakarta. Vietnam’s capital is Hanoi. Philippines’ capital is Manila. Malaysia’s capital is Kuala Lumpur. Singapore’s capital is Singapore. New Zealand’s capital is Wellington. Pakistan’s capital is Islamabad. Sri Lanka’s capital is Colombo. Bangladesh’s capital is Dhaka. Nepal’s capital is Kathmandu. Bhutan’s capital is Thimphu. Norway’s capital is Oslo. Sweden’s capital is Stockholm. Finland’s capital is Helsinki. Denmark’s capital is Copenhagen. Netherlands’ capital is Amsterdam. Belgium’s capital is Brussels. Switzerland’s capital is Bern. Austria’s capital is Vienna. Poland’s capital is Warsaw. Czech Republic’s capital is Prague. Greece’s capital is Athens. Portugal’s capital is Lisbon. Ireland’s capital is Dublin. Chile’s capital is Santiago. Peru’s capital is Lima. Colombia’s capital is Bogotá.",
+            "metadata": {"topic": "trivia", "category": "Capitals"}
+        }
+    ]
+    
+    response = requests.post(
+        f"{BASE_URL}/api/documents/batch",
+        json={"documents": documents}
+    )
+    
+    print(f"Status Code: {response.status_code}")
+    print(f"Response: {json.dumps(response.json(), indent=2)}")
+    
+    return response.status_code == 200
 
 def test_dummy_llm(llm_provider_name, test_queries=None, verbose=True):
     """
@@ -180,21 +208,38 @@ if __name__ == "__main__":
     Test suite execution for dummy/custom LLM providers
     """
 
+    # Step 1: Add documents to RAG cache
+    add_documents()
+    time.sleep(2)  # Wait for documents to be indexed
+
+    test_clear_cache()
+    time.sleep(2)  # Wait for cache to clear
+    
     # Test 1: Test dummy LLM
     print("\n=== Test 1: Test Dummy LLM ===")
     results = test_dummy_llm(
-        llm_provider_name="dummy",  # Replace with your dummy LLM name
+        llm_provider_name="dummy",  # my dummy LLM name
         test_queries=[
-            "What is Python?",
-            "Explain APIs",
-            "What is Docker?"
+            "Why does python use indentation?",
+            "What is python's package manager called?",
+            "What is France's capital?"
         ]
     )
 
     # Test 2: Test cache behavior
-    print("\n=== Test 2: Test Cache Behavior ===")
+    print("\n=== Test 2: Test Cache Behavior: Repeated Query ===")
     cache_results = test_dummy_llm_with_cache_behavior(
-        llm_provider_name="dummy",  # Replace with your dummy LLM name
-        test_query_text="What is artificial intelligence?"
+        llm_provider_name="dummy",  # my dummy LLM name
+        test_query_text="What is a key characteristic of Python Lists?"
     )
+
+    print("\n=== Test 3: Test Cache Behavior: Semantically Similar Query ===")
+    cache_results = test_dummy_llm_with_cache_behavior(
+        llm_provider_name="dummy",  # my dummy LLM name
+        test_query_text="Can you tell me a key characteristic of Python Lists?"
+    )
+
+    test_clear_cache()
+    print("\nCache tests completed.")
+
 
