@@ -49,7 +49,7 @@ class SemanticCache:
     
     def _embed_query(self, query: str) -> List[float]:
         """Generate embedding for query"""
-        return self.embedding_model.encode(query).tolist()
+        return self.embedding_model.encode(query, normalize_embeddings=True).tolist()
     
     """
         Retrieve cached response for semantically similar query

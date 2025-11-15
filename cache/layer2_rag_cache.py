@@ -93,7 +93,7 @@ class RAGCache:
 
     def _embed_text(self, text: str) -> List[float]:
         """Generate embedding for text"""
-        return self.embedding_model.encode(text).tolist()
+        return self.embedding_model.encode(text, normalize_embeddings=True).tolist()
     
     def get(self, query: str, top_k: int = 3) -> Optional[List[Dict]]:
         """
